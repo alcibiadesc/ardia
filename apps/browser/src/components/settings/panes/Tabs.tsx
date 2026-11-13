@@ -85,6 +85,7 @@ const DURATION_UNITS: Option<DurationUnit>[] = [
 
 export function TabsPane() {
   const newTabOpens = useSettings((s) => s.newTabOpens);
+  const splitPaneOpens = useSettings((s) => s.splitPaneOpens);
   const newTabPosition = useSettings((s) => s.newTabPosition);
   const newTabButtonPosition = useSettings((s) => s.newTabButtonPosition);
   const cleanUpMinutes = useSettings((s) => s.cleanUpInactiveTabsAfterMinutes);
@@ -127,6 +128,17 @@ export function TabsPane() {
               { value: "commandBar", title: "Command Bar" },
             ]}
             onChange={(v) => updateSettings({ newTabOpens: v })}
+            minWidth={160}
+          />
+        </Row>
+        <Row anchor="tabs.splitPaneOpens">
+          <PopUp
+            value={splitPaneOpens}
+            options={[
+              { value: "picker", title: "Split View Card" },
+              { value: "commandBar", title: "Command Bar" },
+            ]}
+            onChange={(v) => updateSettings({ splitPaneOpens: v })}
             minWidth={160}
           />
         </Row>

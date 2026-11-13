@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 import { useTheme } from "../ui/theme";
-import { useTab } from "../../state/browser/hooks";
+import { useSettings, useTab } from "../../state/browser/hooks";
 import { navigate } from "../../state/tabs/actions";
 import { replaceSplitPane } from "../../state/splits/actions";
 import { useSplitSuggestions } from "../../state/splits/hooks";
+import { showOnceOverEmptySplitPane, showSplitPaneBar } from "../../state/splits/paneBar";
 import { tabLabel } from "../../state/browser/model";
 import { Panel, SearchField, shadow, space, Symbol, Text, useHover } from "../ui";
 import { EMPTY_STATE_RADIUS, EMPTY_STATE_WIDTH, SPLIT_ROW_HEIGHT, SPLIT_ROW_RADIUS, splitColors } from "./tokens";
@@ -12,12 +13,16 @@ import { Favicon } from "../favicon/Favicon";
 
 export function SplitEmptyState({ tabId, focused }: { tabId: string; focused: boolean }) {
   const theme = useTheme();
+  const opensBar = useSettings((s) => s.splitPaneOpens === "commandBar");
   const [typing, setTyping] = useState(focused);
   const [text, setText] = useState("");
   const suggestions = useSplitSuggestions(tabId);
   const go = () => {
     if (text.trim()) navigate(tabId, text.trim());
   };
+  useEffect(() => {
+    if (opensBar && focused) showOnceOverEmptySplitPane(tabId);
+  }, [opensBar, focused, tabId]);
 
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: space.xl }}>
@@ -31,7 +36,7 @@ export function SplitEmptyState({ tabId, focused }: { tabId: string; focused: bo
         <Text weight="semibold" style={{ paddingHorizontal: space.xl, paddingTop: space.xs, paddingBottom: space.ml }}>
           Add a tab to this Split View
         </Text>
-        {typing ? (
+        {typing && !opensBar ? (
           <View style={{ height: SPLIT_ROW_HEIGHT, marginHorizontal: space.s, paddingHorizontal: space.ml, borderRadius: SPLIT_ROW_RADIUS, justifyContent: "center", backgroundColor: theme.rowHover }}>
             <SearchField
               look="bare"
@@ -47,7 +52,7 @@ export function SplitEmptyState({ tabId, focused }: { tabId: string; focused: bo
             />
           </View>
         ) : (
-          <Row icon={<Symbol name="magnifyingglass" size={13} color={theme.textSecondary} style={{ width: 16, height: 16 }} />} label="Search or Ask a Question" secondary onPress={() => setTyping(true)} />
+          <Row icon={<Symbol name="magnifyingglass" size={13} color={theme.textSecondary} style={{ width: 16, height: 16 }} />} label={opensBar ? "Search or enter address" : "Search or Ask a Question"} secondary onPress={() => (opensBar ? void showSplitPaneBar(tabId) : setTyping(true))} />
         )}
         {suggestions.length > 0 && <View style={{ height: space.s }} />}
         {suggestions.map((id) => (
