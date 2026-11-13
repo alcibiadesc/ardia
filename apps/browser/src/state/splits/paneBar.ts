@@ -2,6 +2,7 @@ import { useBrowser, type BrowserState } from "../browser/store";
 import { activeTabId } from "../browser/model";
 import { hasPage } from "../tabs/pageSession";
 import { noteSplit } from "../telemetry/usage";
+import { closePane } from "./actions";
 import { splitOf } from "./splits";
 
 const store = () => useBrowser.getState();
@@ -32,4 +33,11 @@ export function showOnceOverEmptySplitPane(tabId: string): boolean {
   shownOver.add(tabId);
   if (activeTabId(s, tab.windowId) !== tabId || s.windowUi[tab.windowId]?.panel.open) return false;
   return showSplitPaneBar(tabId);
+}
+
+export function closeEmptySplitPane(tabId: string): boolean {
+  if (!isEmptySplitPane(store(), tabId)) return false;
+  noteSplit("splitPaneEscapeCloses");
+  closePane(tabId);
+  return true;
 }

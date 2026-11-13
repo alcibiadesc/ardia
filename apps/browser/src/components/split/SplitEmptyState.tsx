@@ -5,7 +5,7 @@ import { useSettings, useTab } from "../../state/browser/hooks";
 import { navigate } from "../../state/tabs/actions";
 import { replaceSplitPane } from "../../state/splits/actions";
 import { useSplitSuggestions } from "../../state/splits/hooks";
-import { showOnceOverEmptySplitPane, showSplitPaneBar } from "../../state/splits/paneBar";
+import { closeEmptySplitPane, showOnceOverEmptySplitPane, showSplitPaneBar } from "../../state/splits/paneBar";
 import { tabLabel } from "../../state/browser/model";
 import { Panel, SearchField, shadow, space, Symbol, Text, useHover } from "../ui";
 import { EMPTY_STATE_RADIUS, EMPTY_STATE_WIDTH, SPLIT_ROW_HEIGHT, SPLIT_ROW_RADIUS, splitColors } from "./tokens";
@@ -46,8 +46,8 @@ export function SplitEmptyState({ tabId, focused }: { tabId: string; focused: bo
               placeholder="Search or Ask a Question"
               onSubmit={go}
               onEscape={() => {
+                if (!text) return void closeEmptySplitPane(tabId);
                 setText("");
-                setTyping(false);
               }}
             />
           </View>
